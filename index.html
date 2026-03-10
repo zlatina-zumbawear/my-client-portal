@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h2>Client Portal PoC</h2>
+  <input type="text" id="clientId" placeholder="Enter your ID (e.g. 101)">
+  <button onclick="loadData()">View My Data</button>
+
+  <div id="display" style="margin-top:20px; display:none;">
+    <p>Welcome, <b id="clientName"></b></p>
+    <label>Your Estimate:</label>
+    <input type="number" id="estimateInput">
+    <button onclick="updateData()">Update Estimate</button>
+  </div>
+
+  <script>
+    const WEB_APP_URL = "PASTE_YOUR_URL_HERE";
+
+    async function loadData() {
+      const id = document.getElementById('clientId').value;
+      const response = await fetch(`${WEB_APP_URL}?id=${id}`);
+      const data = await response.json();
+      
+      if(data.success) {
+        document.getElementById('display').style.display = 'block';
+        document.getElementById('clientName').innerText = data.name;
+        document.getElementById('estimateInput').value = data.estimate;
+      } else {
+        alert("Client not found!");
+      }
+    }
+
+    async function updateData() {
+      const id = document.getElementById('clientId').value;
+      const val = document.getElementById('estimateInput').value;
+      
+      // We use text/plain to avoid CORS pre-flight "OPTIONS" check
+      await fetch(WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors', 
+        body: JSON.stringify({ id: id, newEstimate: val })
+      });
+      
+      alert("Sent update request! (Note: no-cors means we can't read success msg, but sheet will update)");
+    }
+  </script>
+</body>
+</html>
